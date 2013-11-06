@@ -1,18 +1,17 @@
 #include <Servo.h>
 #include <EEPROM.h>
 
+// Servo declarations
 Servo one;
 Servo two;
 Servo three;
 Servo four;
 Servo five;
-Servo claw;
-
 // Calibration values
-int minDegOne, minDegTwo, minDegThree, minDegFour, minDegFive, minDegClaw;
-int maxDegOne, maxDegTwo, maxDegThree, maxDegFour, maxDegFive, maxDegClaw;
-int minFeedOne, minFeedTwo, minFeedThree, minFeedFour, minFeedFive, minFeedClaw;
-int maxFeedOne, maxFeedTwo, maxFeedThree, maxFeedFour, maxFeedFive, maxFeedClaw;
+int minDegOne, minDegTwo, minDegThree, minDegFour, minDegFive;
+int maxDegOne, maxDegTwo, maxDegThree, maxDegFour, maxDegFive;
+int minFeedOne, minFeedTwo, minFeedThree, minFeedFour, minFeedFive;
+int maxFeedOne, maxFeedTwo, maxFeedThree, maxFeedFour, maxFeedFive;
 int posOne, posTwo, posThree, posFour, posFive;
 int tolerance = 2; // max feedback measurement error
 int addr = 0;
@@ -22,16 +21,15 @@ int temp = 0;
 void setup()
 {
   Serial.begin(9600);
-  claw.attach(7);
   one.attach(8);
   two.attach(9);
   three.attach(10);
   four.attach(11);
   five.attach(12);
   pinMode(13, OUTPUT);  // LED
-  pinMode(7, INPUT);    // Button
+  pinMode(6, INPUT);    // Replay Button
+  pinMode(7, INPUT);    // Train Button
   delay(100);
-  
   // One center to left
   for (int i = 90; i > 29; i--)
   {
@@ -59,7 +57,6 @@ void setup()
     delay(20);
   }
   delay(500);
-  
   // Two up to forward
   for (int i = 90; i > 29; i--)
   {
@@ -160,7 +157,6 @@ void setup()
     delay(20);
   }
   delay(500);
-  
   // Center all servos
   one.write(90);
   two.write(90);
@@ -168,11 +164,35 @@ void setup()
   four.write(90);
   five.write(90);
   delay(1000);
+  // Detach to save power and allow human manipulation
   one.detach();
   two.detach();
   three.detach();
   four.detach();
   five.detach();
+  /*
+  // Display minimums and maximums for analog feedback
+  Serial.print("One Min:");
+  Serial.println(minFeedOne);
+  Serial.print("One Max:");
+  Serial.println(maxFeedOne);
+  Serial.print("Two Min:");
+  Serial.println(minFeedTwo);
+  Serial.print("Two Max:");
+  Serial.println(maxFeedTwo);
+  Serial.print("Three Min:");
+  Serial.println(minFeedThree);
+  Serial.print("Three Max:");
+  Serial.println(maxFeedThree);
+  Serial.print("Four Min:");
+  Serial.println(minFeedFour);
+  Serial.print("Four Max:");
+  Serial.println(maxFeedFour);
+  Serial.print("Five Min:");
+  Serial.println(minFeedFive);
+  Serial.print("Five Max:");
+  Serial.println(maxFeedFive);
+  */
 }
 
 void loop()
@@ -186,7 +206,7 @@ void loop()
     delay(2000);
     while (!digitalRead(7))
     {
-      delay(100);
+      delay(50);
       int posOne = map(analogRead(1), minFeedOne, maxFeedOne, minDegOne, maxDegOne);
       EEPROM.write(addr, posOne);
       addr++;
@@ -207,7 +227,7 @@ void loop()
         EEPROM.write(addr, 255);
         break;
       }
-      delay(100);
+      delay(50);
     }
     EEPROM.write(addr, 255);
   }
@@ -215,12 +235,14 @@ void loop()
   {
     digitalWrite(13, LOW);
     Serial.println("Playing back motion!");
+    // Power up servos
     one.attach(8);
     two.attach(9);
     three.attach(10);
     four.attach(11);
     five.attach(12);
     delay(1000);
+    // Center servos
     one.write(90);
     two.write(90);
     three.write(90);
@@ -264,59 +286,12 @@ void loop()
     four.write(90);
     five.write(90);
     delay(500);
-    // Detach them to save power
+    // Detach them to save power and allow human manipulation
     one.detach();
     two.detach();
     three.detach();
     four.detach();
     five.detach();
   }
-/*
-// Original Code from October 31st 2013
-  digitalWrite(13, HIGH);
-  one.detach();
-  two.detach();
-  three.detach();
-  four.detach();
-  five.detach();
-  delay(5000);
-  digitalWrite(13, LOW);
-  one.attach(8);
-  two.attach(9);
-  three.attach(10);
-  four.attach(11);
-  five.attach(12);
-  int posOne = map(analogRead(1), minFeedOne, maxFeedOne, minDegOne, maxDegOne);
-  int posTwo = map(analogRead(2), minFeedTwo, maxFeedTwo, minDegTwo, maxDegTwo);
-  int posThree = map(analogRead(3), minFeedThree, maxFeedThree, minDegThree, maxDegThree);
-  int posFour = map(analogRead(4), minFeedFour, maxFeedFour, minDegFour, maxDegFour);
-  int posFive = map(analogRead(5), minFeedFive, maxFeedFive, minDegFive, maxDegFive);
-  Serial.print("pos1: ");
-  Serial.println(posOne);
-  Serial.print("pos2: ");
-  Serial.println(posTwo);
-  Serial.print("pos3: ");
-  Serial.println(posThree);
-  Serial.print("pos4: ");
-  Serial.println(posFour);
-  Serial.print("pos5: ");
-  Serial.println(posFive);
-  Serial.print("\n\n");
-  
-  delay(1000);
-  one.write(90);
-  two.write(90);
-  three.write(90);
-  four.write(90);
-  five.write(90);
-  delay(1000);
-  one.write(posOne);
-  two.write(posTwo);
-  three.write(posThree);
-  four.write(posFour);
-  five.write(posFive);
-  delay(4000);
-*/
-
 }
 
