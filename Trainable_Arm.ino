@@ -13,6 +13,7 @@ int maxDegOne, maxDegTwo, maxDegThree, maxDegFour, maxDegFive;
 int minFeedOne, minFeedTwo, minFeedThree, minFeedFour, minFeedFive;
 int maxFeedOne, maxFeedTwo, maxFeedThree, maxFeedFour, maxFeedFive;
 int posOne, posTwo, posThree, posFour, posFive;
+int posOne1, posTwo1, posThree1, posFour1, posFive1;
 int tolerance = 2; // max feedback measurement error
 int addr = 0;
 int motion = 0;
@@ -34,18 +35,16 @@ void setup()
   for (int i = 90; i > 29; i--)
   {
     one.write(i);
-    //Serial.println(i);
     delay(10);
   }
   minDegOne = 30;
   minFeedOne = analogRead(1);
-  //Serial.println(analogRead(2));
   delay(500);
   // One left to right
   for (int i = 30; i < 151; i++)
   {
     one.write(i);
-    delay(20);
+    delay(10);
   }
   maxDegOne = 150;
   maxFeedOne = analogRead(1);
@@ -54,7 +53,7 @@ void setup()
   for (int i = 150; i > 89; i--)
   {
     one.write(i);
-    delay(20);
+    delay(10);
   }
   delay(500);
   // Two up to forward
@@ -67,10 +66,10 @@ void setup()
   minFeedTwo = analogRead(2);
   delay(500);
   // Two forward to backward
-  for (int i = 30; i < 151; i++)
+  for (int i = 25; i < 151; i++)
   {
     two.write(i);
-    delay(20);
+    delay(10);
   }
   maxDegTwo = 150;
   maxFeedTwo = analogRead(2);
@@ -79,11 +78,11 @@ void setup()
   for (int i = 150; i > 89; i--)
   {
     two.write(i);
-    delay(20);
+    delay(10);
   }
   delay(500);
   // Three up to forward
-  for (int i = 90; i > 29; i--)
+  for (int i = 90; i > 30; i--)
   {
     three.write(i);
     delay(10);
@@ -95,7 +94,7 @@ void setup()
   for (int i = 30; i < 151; i++)
   {
     three.write(i);
-    delay(20);
+    delay(10);
   }
   maxDegThree = 150;
   maxFeedThree = analogRead(3);
@@ -104,7 +103,7 @@ void setup()
   for (int i = 150; i > 89; i--)
   {
     three.write(i);
-    delay(20);
+    delay(10);
   }
   delay(500);  
   // Four up to forward
@@ -120,7 +119,7 @@ void setup()
   for (int i = 30; i < 151; i++)
   {
     four.write(i);
-    delay(20);
+    delay(10);
   }
   maxDegFour = 150;
   maxFeedFour = analogRead(4);
@@ -129,32 +128,32 @@ void setup()
   for (int i = 150; i > 89; i--)
   {
     four.write(i);
-    delay(20);
+    delay(10);
   }
   delay(500);
   // Five up to forward
-  for (int i = 90; i > 29; i--)
+  for (int i = 90; i > 19; i--)
   {
     five.write(i);
     delay(10);
   }
-  minDegFive = 30;
+  minDegFive = 20;
   minFeedFive = analogRead(5);
   delay(500);
   // Five forward to backward
-  for (int i = 30; i < 151; i++)
+  for (int i = 20; i < 181; i++)
   {
     five.write(i);
-    delay(20);
+    delay(10);
   }
-  maxDegFive = 150;
+  maxDegFive = 180;
   maxFeedFive = analogRead(5);
   delay(500);
   // Five backward to up
-  for (int i = 150; i > 89; i--)
+  for (int i = 180; i > 89; i--)
   {
     five.write(i);
-    delay(20);
+    delay(10);
   }
   delay(500);
   // Center all servos
@@ -172,26 +171,27 @@ void setup()
   five.detach();
   /*
   // Display minimums and maximums for analog feedback
-  Serial.print("One Min:");
+  Serial.print("One Min: ");
   Serial.println(minFeedOne);
-  Serial.print("One Max:");
+  Serial.print("One Max: ");
   Serial.println(maxFeedOne);
-  Serial.print("Two Min:");
+  Serial.print("Two Min: ");
   Serial.println(minFeedTwo);
-  Serial.print("Two Max:");
+  Serial.print("Two Max: ");
   Serial.println(maxFeedTwo);
-  Serial.print("Three Min:");
+  Serial.print("Three Min: ");
   Serial.println(minFeedThree);
-  Serial.print("Three Max:");
+  Serial.print("Three Max: ");
   Serial.println(maxFeedThree);
-  Serial.print("Four Min:");
+  Serial.print("Four Min: ");
   Serial.println(minFeedFour);
-  Serial.print("Four Max:");
+  Serial.print("Four Max: ");
   Serial.println(maxFeedFour);
-  Serial.print("Five Min:");
+  Serial.print("Five Min: ");
   Serial.println(minFeedFive);
-  Serial.print("Five Max:");
+  Serial.print("Five Max: ");
   Serial.println(maxFeedFive);
+  Serial.println();
   */
 }
 
@@ -234,7 +234,6 @@ void loop()
   if (motion || digitalRead(6))
   {
     digitalWrite(13, LOW);
-    Serial.println("Playing back motion!");
     // Power up servos
     one.attach(8);
     two.attach(9);
@@ -253,28 +252,140 @@ void loop()
     addr = 0;
     while (1)
     {
-      temp = EEPROM.read(addr);
+      posOne = EEPROM.read(addr);
+      posOne1 = EEPROM.read(addr+5);
       addr++;
-      if (temp == 255)
-      {
-        Serial.println("End of recording!");
-        break;
-      }
-      posOne = temp;
       posTwo = EEPROM.read(addr);
+      posTwo1 = EEPROM.read(addr+5);
       addr++;
       posThree = EEPROM.read(addr);
+      posThree1 = EEPROM.read(addr+5);
       addr++;
       posFour = EEPROM.read(addr);
+      posFour1 = EEPROM.read(addr+5);
       addr++;
       posFive = EEPROM.read(addr);
+      posFive1 = EEPROM.read(addr+5);
       addr++;
-      one.write(posOne);
-      two.write(posTwo);
-      three.write(posThree);
-      four.write(posFour);
-      five.write(posFive);
-      delay(200);
+      
+      // Check for the end
+      if (posOne == 255)
+      {
+        break;
+      }
+      
+      /*
+      // Display positions being written to the servos
+      Serial.print("One: ");
+      Serial.print(posOne);
+      Serial.print("\t\t\t");
+      Serial.println(posOne1);
+      Serial.print("Two: ");
+      Serial.print(posTwo);
+      Serial.print("\t\t");
+      Serial.println(posTwo1);
+      Serial.print("Three: ");
+      Serial.print(posThree);
+      Serial.print("\t\t");
+      Serial.println(posThree1);
+      Serial.print("Four: ");
+      Serial.print(posFour);
+      Serial.print("\t\t");
+      Serial.println(posFour1);
+      Serial.print("Five: ");
+      Serial.print(posFive);
+      Serial.print("\t\t");
+      Serial.println(posFive1);
+      Serial.println();
+      */
+      
+      // Check for the end of the recorded commands, if so then break out of the infinite loop
+      if ((posOne == 255) || (posOne1 == 255) || (posTwo == 255) || (posTwo1 == 255) || (posThree == 255) || (posThree1 == 255) || (posFour == 255) || (posFour1 == 255) || (posFive == 255) || (posFive1 == 255))
+      {
+        break;
+      }
+      
+      // Step from one recording to the next for each servo
+      if ((posOne1 - posOne) > 0)
+      {
+        for (int i = posOne; i < posOne1; i++)
+        {
+          one.write(i);
+          delay(5);
+        }
+      }   
+      else if ((posOne1 - posOne) < 0)
+      {
+        for (int i = posOne; i > posOne1; i--)
+        {
+          one.write(i);
+          delay(5);
+        }
+      }
+      if ((posTwo1 - posTwo) > 0)
+      {
+        for (int i = posTwo; i < posTwo1; i++)
+        {
+          two.write(i);
+          delay(5);
+        }
+      }   
+      else if ((posTwo1 - posTwo) < 0)
+      {
+        for (int i = posTwo; i > posTwo1; i--)
+        {
+          two.write(i);
+          delay(5);
+        }
+      }
+      if ((posThree1 - posThree) > 0)
+      {
+        for (int i = posThree; i < posThree1; i++)
+        {
+          three.write(i);
+          delay(5);
+        }
+      }   
+      else if ((posThree1 - posThree) < 0)
+      {
+        for (int i = posThree; i > posThree1; i--)
+        {
+          three.write(i);
+          delay(5);
+        }
+      }
+      if ((posFour1 - posFour) > 0)
+      {
+        for (int i = posFour; i < posFour1; i++)
+        {
+          four.write(i);
+          delay(5);
+        }
+      }   
+      else if ((posFour1 - posFour) < 0)
+      {
+        for (int i = posFour; i > posFour1; i--)
+        {
+          four.write(i);
+          delay(5);
+        }
+      }
+      if ((posFive1 - posFive) > 0)
+      {
+        for (int i = posFive; i < posFive1; i++)
+        {
+          five.write(i);
+          delay(5);
+        }
+      }   
+      else if ((posFive1 - posFive) < 0)
+      {
+        for (int i = posFive; i > posFive1; i--)
+        {
+          five.write(i);
+          delay(5);
+        }
+      }
     }
     motion = 0;
     addr = 0;
