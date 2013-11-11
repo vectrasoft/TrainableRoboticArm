@@ -14,10 +14,8 @@ int minFeedOne, minFeedTwo, minFeedThree, minFeedFour, minFeedFive;
 int maxFeedOne, maxFeedTwo, maxFeedThree, maxFeedFour, maxFeedFive;
 int posOne, posTwo, posThree, posFour, posFive;
 int posOne1, posTwo1, posThree1, posFour1, posFive1;
-int tolerance = 2; // max feedback measurement error
 int addr = 0;
-int motion = 0;
-int temp = 0;
+boolean recorded = false;
 
 void setup()
 {
@@ -171,6 +169,7 @@ void setup()
   five.detach();
   /*
   // Display minimums and maximums for analog feedback
+  // Uncomment for debugging
   Serial.print("One Min: ");
   Serial.println(minFeedOne);
   Serial.print("One Max: ");
@@ -197,13 +196,12 @@ void setup()
 
 void loop()
 {
-  temp = digitalRead(7);
   delay(100);
-  if (temp)
+  if (digitalRead(7))
   {
-    motion = 1;
+    recorded = true;
     digitalWrite(13, HIGH);
-    delay(2000);
+    delay(1000);
     while (!digitalRead(7))
     {
       delay(50);
@@ -231,7 +229,7 @@ void loop()
     }
     EEPROM.write(addr, 255);
   }
-  if (motion || digitalRead(6))
+  if (recorded || digitalRead(6))
   {
     digitalWrite(13, LOW);
     // Power up servos
@@ -268,14 +266,9 @@ void loop()
       posFive1 = EEPROM.read(addr+5);
       addr++;
       
-      // Check for the end
-      if (posOne == 255)
-      {
-        break;
-      }
-      
       /*
       // Display positions being written to the servos
+      // Uncomment for debugging
       Serial.print("One: ");
       Serial.print(posOne);
       Serial.print("\t\t\t");
@@ -387,9 +380,9 @@ void loop()
         }
       }
     }
-    motion = 0;
+    recorded = false;
     addr = 0;
-    delay(500);
+    delay(1000);
     // Center all servos
     one.write(90);
     two.write(90);
