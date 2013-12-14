@@ -16,6 +16,7 @@ int posOne, posTwo, posThree, posFour, posFive;
 int posOne1, posTwo1, posThree1, posFour1, posFive1;
 int addr = 0;
 boolean recorded = false;
+int val;
 
 void setup()
 {
@@ -30,123 +31,123 @@ void setup()
   pinMode(7, INPUT);    // Train Button
   delay(100);
   // One center to left
-  for (int i = 90; i > 29; i--)
+  for (int i = 90; i > -1; i--)
   {
     one.write(i);
     delay(10);
   }
-  minDegOne = 30;
+  minDegOne = 0;
   minFeedOne = analogRead(1);
-  delay(500);
+  delay(200);
   // One left to right
-  for (int i = 30; i < 151; i++)
+  for (int i = 30; i < 181; i++)
   {
     one.write(i);
     delay(10);
   }
-  maxDegOne = 150;
+  maxDegOne = 180;
   maxFeedOne = analogRead(1);
-  delay(500);
+  delay(200);
   // One right to center
-  for (int i = 150; i > 89; i--)
+  for (int i = 180; i > 89; i--)
   {
     one.write(i);
     delay(10);
   }
-  delay(500);
+  delay(200);
   // Two up to forward
-  for (int i = 90; i > 29; i--)
+  for (int i = 90; i > -1; i--)
   {
     two.write(i);
     delay(10);
   }
-  minDegTwo = 30;
+  minDegTwo = 0;
   minFeedTwo = analogRead(2);
-  delay(500);
+  delay(200);
   // Two forward to backward
-  for (int i = 25; i < 151; i++)
+  for (int i = 0; i < 181; i++)
   {
     two.write(i);
     delay(10);
   }
-  maxDegTwo = 150;
+  maxDegTwo = 180;
   maxFeedTwo = analogRead(2);
-  delay(500);
+  delay(200);
   // Two backward to up
-  for (int i = 150; i > 89; i--)
+  for (int i = 180; i > 89; i--)
   {
     two.write(i);
     delay(10);
   }
-  delay(500);
+  delay(200);
   // Three up to forward
-  for (int i = 90; i > 30; i--)
+  for (int i = 90; i > -1; i--)
   {
     three.write(i);
     delay(10);
   }
-  minDegThree = 30;
+  minDegThree = 0;
   minFeedThree = analogRead(3);
-  delay(500);
+  delay(200);
   // Three forward to backward
-  for (int i = 30; i < 151; i++)
+  for (int i = 0; i < 181; i++)
   {
     three.write(i);
     delay(10);
   }
-  maxDegThree = 150;
+  maxDegThree = 180;
   maxFeedThree = analogRead(3);
-  delay(500);
+  delay(200);
   // Three backward to up
-  for (int i = 150; i > 89; i--)
+  for (int i = 180; i > 89; i--)
   {
     three.write(i);
     delay(10);
   }
-  delay(500);  
+  delay(200);  
   // Four up to forward
-  for (int i = 90; i > 29; i--)
+  for (int i = 90; i > -1; i--)
   {
     four.write(i);
     delay(10);
   }
-  minDegFour = 30;
+  minDegFour = 0;
   minFeedFour = analogRead(4);
-  delay(500);
+  delay(200);
   // Four forward to backward
-  for (int i = 30; i < 151; i++)
+  for (int i = 0; i < 181; i++)
   {
     four.write(i);
     delay(10);
   }
-  maxDegFour = 150;
+  maxDegFour = 180;
   maxFeedFour = analogRead(4);
-  delay(500);
+  delay(200);
   // Four backward to up
-  for (int i = 150; i > 89; i--)
+  for (int i = 180; i > 89; i--)
   {
     four.write(i);
     delay(10);
   }
-  delay(500);
+  delay(200);
   // Five up to forward
-  for (int i = 90; i > 19; i--)
+  for (int i = 90; i > -1; i--)
   {
     five.write(i);
     delay(10);
   }
-  minDegFive = 20;
+  minDegFive = 0;
   minFeedFive = analogRead(5);
-  delay(500);
+  delay(200);
   // Five forward to backward
-  for (int i = 20; i < 181; i++)
+  for (int i = 0; i < 181; i++)
   {
     five.write(i);
     delay(10);
   }
   maxDegFive = 180;
   maxFeedFive = analogRead(5);
-  delay(500);
+  delay(200);
   // Five backward to up
   for (int i = 180; i > 89; i--)
   {
@@ -192,6 +193,13 @@ void setup()
   Serial.println(maxFeedFive);
   Serial.println();
   */
+  for (int i = 0; i < 3; i++)
+  {
+    digitalWrite(13, HIGH);
+    delay(100);
+    digitalWrite(13, LOW);
+    delay(100);
+  }
 }
 
 void loop()
@@ -206,18 +214,23 @@ void loop()
     {
       delay(50);
       int posOne = map(analogRead(1), minFeedOne, maxFeedOne, minDegOne, maxDegOne);
+      posOne = constrain(posOne, 0, 180);
       EEPROM.write(addr, posOne);
       addr++;
       int posTwo = map(analogRead(2), minFeedTwo, maxFeedTwo, minDegTwo, maxDegTwo);
+      posTwo = constrain(posTwo, 0, 180);
       EEPROM.write(addr, posTwo);
       addr++;
       int posThree = map(analogRead(3), minFeedThree, maxFeedThree, minDegThree, maxDegThree);
+      posThree = constrain(posThree, 0, 180);
       EEPROM.write(addr, posThree);
       addr++;
       int posFour = map(analogRead(4), minFeedFour, maxFeedFour, minDegFour, maxDegFour);
+      posFour = constrain(posFour, 0, 180);
       EEPROM.write(addr, posFour);
       addr++;
       int posFive = map(analogRead(5), minFeedFive, maxFeedFive, minDegFive, maxDegFive);
+      posFive = constrain(posFive, 0, 180);
       EEPROM.write(addr, posFive);
       addr++;
       if (addr == 512)
@@ -226,6 +239,20 @@ void loop()
         break;
       }
       delay(50);
+      /*
+      // Display recorded values
+      // Uncomment for debugging
+      Serial.print(posOne);
+      Serial.print("\t");
+      Serial.print(posTwo);
+      Serial.print("\t");
+      Serial.print(posThree);
+      Serial.print("\t");
+      Serial.print(posFour);
+      Serial.print("\t");
+      Serial.print(posFive);
+      Serial.println();
+      */
     }
     EEPROM.write(addr, 255);
   }
@@ -265,7 +292,6 @@ void loop()
       posFive = EEPROM.read(addr);
       posFive1 = EEPROM.read(addr+5);
       addr++;
-      
       /*
       // Display positions being written to the servos
       // Uncomment for debugging
@@ -382,20 +408,28 @@ void loop()
     }
     recorded = false;
     addr = 0;
-    delay(1000);
+    delay(500);
     // Center all servos
     one.write(90);
     two.write(90);
     three.write(90);
     four.write(90);
     five.write(90);
-    delay(500);
+    delay(1000);
     // Detach them to save power and allow human manipulation
     one.detach();
     two.detach();
     three.detach();
     four.detach();
     five.detach();
+    // Flash the LED to let user know replay is completed
+    for (int i = 0; i < 3; i++)
+    {
+      digitalWrite(13, HIGH);
+      delay(100);
+      digitalWrite(13, LOW);
+      delay(100);
+    }
   }
 }
 
