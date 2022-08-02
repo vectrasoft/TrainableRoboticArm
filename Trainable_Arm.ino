@@ -1,6 +1,12 @@
 #include <Servo.h>
 #include <EEPROM.h>
 
+#define _servo_fun(A) for(int i=0; i<5; i++) servos[i].srv.(A)
+
+#define servo_on _servo_fun(attach(8+i))
+#define servo_off _servo_fun(detach(8+i))
+#define servo_center _servo_fun(write(90))
+
 struct superServo{
     Servo srv;
     int minDeg;
@@ -12,14 +18,12 @@ struct superServo{
 } servos[5];
 
 int addr = 0;
-boolean recorded = false;
 int val;
 
 void setup(){
   Serial.begin(9600);
 
-  for(int i=0; i<5; i++)
-    servos[i].srv.attach(8+i);
+  servo_on;
 
   pinMode(13, OUTPUT);  // LED
   pinMode(6, INPUT);    // Replay Button
@@ -52,10 +56,7 @@ void setup(){
   }
 
   delay(1300);
-
-  // Detach to save power and allow human manipulation
-  for(int i=0; i<5; i++)
-    servos[i].srv.detach();
+  servo_off;
 
   /* Display minimums and maximums for analog feedback
   // Uncomment for debugging
@@ -70,16 +71,13 @@ void setup(){
   blink();
 }
 
-void loop()
-{
-  delay(100);
-  if (digitalRead(7))
-  {
-    recorded = true;
+void loop(){
+  // enter in recording mode
+  if (digitalRead(7)){
     digitalWrite(13, HIGH);
     delay(1000);
-    while (!digitalRead(7))
-    {
+
+    while (!digitalRead(7)){
       delay(50);
 
       for(int i = 0; i<5; i++){
@@ -89,11 +87,8 @@ void loop()
         addr++;
       }
 
-      if (addr == 512)
-      {
-        EEPROM.write(addr, 255);
-        break;
-      }
+      if (addr == 510) break;
+
       delay(50);
 
       /* Display recorded values
@@ -104,28 +99,26 @@ void loop()
       }
       */
     }
+
     EEPROM.write(addr, 255);
+    addr = 0;
+
+    servo_on;
+    delay(1000);
+
+    servo_center;
+    delay(1000);
+
+    servo_off;
   }
-  if (recorded || digitalRead(6))
-  {
+
+  // enter in executing mode
+  if (digitalRead(6)){
     digitalWrite(13, LOW);
-
-    // Power up servos
-    for(int i = 0; i<5; i++)
-      servos[i].srv.attach(8+i);
-
-    delay(1000);
-
-    // Center servos
-    for(int i = 0; i<5; i++)
-      servos[i].srv.write(90);
-
-    delay(1000);
+    servo_on;
 
     // Start playback
-    addr = 0;
-    while (1)
-    {
+    while (1){
       for(int i = 0; i<5; i++){
         servos[i].pos = EEPROM.read(addr);
         servos[i].pos1 = EEPROM.read(addr+5);
@@ -144,10 +137,8 @@ void loop()
       */
       
       // Check for the end of the recorded commands, if so then break out of the infinite loop
-      if ((servos[0].pos == 255) || (servos[0].pos1 == 255) || (servos[1].pos == 255) || (servos[1].pos1 == 255) || (servos[2].pos == 255) || (servos[2].pos1 == 255) || (servos[3].pos == 255) || (servos[3].pos1 == 255) || (servos[4].pos == 255) || (servos[4].pos1 == 255))
-      {
+      if ((servos[0].pos == 255))
         break;
-      }
       
       for(int j = 0; j<5; j++){
         int direct = servos[j].pos1 > servos[j].pos ? 1 : -1;
@@ -160,24 +151,19 @@ void loop()
       }
     }
 
-    recorded = false;
     addr = 0;
 
     delay(500);
-
-    // Center all servos
-    for(int i = 0; i<5; i++)
-      servos[i].srv.write(90);
+    servo_center;
 
     delay(1000);
-
-    // Detach them to save power and allow human manipulation
-    for(int i = 0; i<5; i++)
-      servos[i].srv.detach();
+    servo_off;
 
     // Flash the LED to let user know replay is completed
     blink();
   }
+
+  delay(100);
 }
 
 void blink(){
