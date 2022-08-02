@@ -18,11 +18,8 @@ int val;
 void setup(){
   Serial.begin(9600);
 
-  servos[0].srv.attach(8);
-  servos[1].srv.attach(9);
-  servos[2].srv.attach(10);
-  servos[3].srv.attach(11);
-  servos[4].srv.attach(12);
+  for(int i=0; i<5; i++)
+    servos[i].srv.attach(8+i);
 
   pinMode(13, OUTPUT);  // LED
   pinMode(6, INPUT);    // Replay Button
@@ -57,11 +54,8 @@ void setup(){
   delay(1300);
 
   // Detach to save power and allow human manipulation
-  servos[0].srv.detach();
-  servos[1].srv.detach();
-  servos[2].srv.detach();
-  servos[3].srv.detach();
-  servos[4].srv.detach();
+  for(int i=0; i<5; i++)
+    servos[i].srv.detach();
   /*
   // Display minimums and maximums for analog feedback
   // Uncomment for debugging
@@ -107,26 +101,14 @@ void loop()
     while (!digitalRead(7))
     {
       delay(50);
-      int servos[0].pos = map(analogRead(1), servos[0].minFeed, servos[0].maxFeed, servos[0].minDeg, servos[0].maxDeg);
-      servos[0].pos = constrain(servos[0].pos, 0, 180);
-      EEPROM.write(addr, servos[0].pos);
-      addr++;
-      int servos[1].pos = map(analogRead(2), servos[1].minFeed, servos[1].maxFeed, servos[1].minDeg, servos[1].maxDeg);
-      servos[1].pos = constrain(servos[1].pos, 0, 180);
-      EEPROM.write(addr, servos[1].pos);
-      addr++;
-      int servos[2].pos = map(analogRead(3), servos[2].minFeed, servos[2].maxFeed, servos[2].minDeg, servos[2].maxDeg);
-      servos[2].pos = constrain(servos[2].pos, 0, 180);
-      EEPROM.write(addr, servos[2].pos);
-      addr++;
-      int servos[3].pos = map(analogRead(4), servos[3].minFeed, servos[3].maxFeed, servos[3].minDeg, servos[3].maxDeg);
-      servos[3].pos = constrain(servos[3].pos, 0, 180);
-      EEPROM.write(addr, servos[3].pos);
-      addr++;
-      int servos[4].pos = map(analogRead(5), servos[4].minFeed, servos[4].maxFeed, servos[4].minDeg, servos[4].maxDeg);
-      servos[4].pos = constrain(servos[4].pos, 0, 180);
-      EEPROM.write(addr, servos[4].pos);
-      addr++;
+
+      for(int i = 0; i<5; i++){
+        int pos = map(analogRead(1), servos[i].minFeed, servos[i].maxFeed, servos[i].minDeg, servos[i].maxDeg);
+        pos = constrain(pos, 0, 180);
+        EEPROM.write(addr, pos);
+        addr++;
+      }
+
       if (addr == 512)
       {
         EEPROM.write(addr, 255);
@@ -153,39 +135,28 @@ void loop()
   if (recorded || digitalRead(6))
   {
     digitalWrite(13, LOW);
+
     // Power up servos
-    servos[0].srv.attach(8);
-    servos[1].srv.attach(9);
-    servos[2].srv.attach(10);
-    servos[3].srv.attach(11);
-    servos[4].srv.attach(12);
+    for(int i = 0; i<5; i++)
+      servos[i].srv.attach(8+i);
+
     delay(1000);
+
     // Center servos
-    servos[0].srv.write(90);
-    servos[1].srv.write(90);
-    servos[2].srv.write(90);
-    servos[3].srv.write(90);
-    servos[4].srv.write(90);
+    for(int i = 0; i<5; i++)
+      servos[i].srv.write(90);
+
     delay(1000);
+
     // Start playback
     addr = 0;
     while (1)
     {
-      servos[0].pos = EEPROM.read(addr);
-      servos[0].pos1 = EEPROM.read(addr+5);
-      addr++;
-      servos[1].pos = EEPROM.read(addr);
-      servos[1].pos1 = EEPROM.read(addr+5);
-      addr++;
-      servos[2].pos = EEPROM.read(addr);
-      servos[2].pos1 = EEPROM.read(addr+5);
-      addr++;
-      servos[3].pos = EEPROM.read(addr);
-      servos[3].pos1 = EEPROM.read(addr+5);
-      addr++;
-      servos[4].pos = EEPROM.read(addr);
-      servos[4].pos1 = EEPROM.read(addr+5);
-      addr++;
+      for(int i = 0; i<5; i++){
+        servos[i].pos = EEPROM.read(addr);
+        servos[i].pos1 = EEPROM.read(addr+5);
+        addr++;
+      }
       /*
       // Display positions being written to the servos
       // Uncomment for debugging
@@ -218,104 +189,32 @@ void loop()
         break;
       }
       
-      // Step from servos[0].srv recording to the next for each servo
-      if ((servos[0].pos1 - servos[0].pos) > 0)
-      {
-        for (int i = servos[0].pos; i < servos[0].pos1; i++)
+      for(int j = 0; j<5; j++){
+        int direct = servos[j].pos1 > servos[j].pos ? 1 : -1;
+        // Move servo to saved position
+        for (int i = servos[j].pos; i != servos[j].pos1; i += direct)
         {
-          servos[0].srv.write(i);
-          delay(5);
-        }
-      }   
-      else if ((servos[0].pos1 - servos[0].pos) < 0)
-      {
-        for (int i = servos[0].pos; i > servos[0].pos1; i--)
-        {
-          servos[0].srv.write(i);
-          delay(5);
-        }
-      }
-      if ((servos[1].pos1 - servos[1].pos) > 0)
-      {
-        for (int i = servos[1].pos; i < servos[1].pos1; i++)
-        {
-          servos[1].srv.write(i);
-          delay(5);
-        }
-      }   
-      else if ((servos[1].pos1 - servos[1].pos) < 0)
-      {
-        for (int i = servos[1].pos; i > servos[1].pos1; i--)
-        {
-          servos[1].srv.write(i);
-          delay(5);
-        }
-      }
-      if ((servos[2].pos1 - servos[2].pos) > 0)
-      {
-        for (int i = servos[2].pos; i < servos[2].pos1; i++)
-        {
-          servos[2].srv.write(i);
-          delay(5);
-        }
-      }   
-      else if ((servos[2].pos1 - servos[2].pos) < 0)
-      {
-        for (int i = servos[2].pos; i > servos[2].pos1; i--)
-        {
-          servos[2].srv.write(i);
-          delay(5);
-        }
-      }
-      if ((servos[3].pos1 - servos[3].pos) > 0)
-      {
-        for (int i = servos[3].pos; i < servos[3].pos1; i++)
-        {
-          servos[3].srv.write(i);
-          delay(5);
-        }
-      }   
-      else if ((servos[3].pos1 - servos[3].pos) < 0)
-      {
-        for (int i = servos[3].pos; i > servos[3].pos1; i--)
-        {
-          servos[3].srv.write(i);
-          delay(5);
-        }
-      }
-      if ((servos[4].pos1 - servos[4].pos) > 0)
-      {
-        for (int i = servos[4].pos; i < servos[4].pos1; i++)
-        {
-          servos[4].srv.write(i);
-          delay(5);
-        }
-      }   
-      else if ((servos[4].pos1 - servos[4].pos) < 0)
-      {
-        for (int i = servos[4].pos; i > servos[4].pos1; i--)
-        {
-          servos[4].srv.write(i);
+          servos[j].srv.write(i);
           delay(5);
         }
       }
     }
+
     recorded = false;
     addr = 0;
+
     delay(500);
+
     // Center all servos
-    servos[0].srv.write(90);
-    servos[1].srv.write(90);
-    servos[2].srv.write(90);
-    servos[3].srv.write(90);
-    servos[4].srv.write(90);
+    for(int i = 0; i<5; i++)
+      servos[i].srv.write(90);
+
     delay(1000);
+
     // Detach them to save power and allow human manipulation
-    servos[0].srv.detach();
-    servos[1].srv.detach();
-    servos[2].srv.detach();
-    servos[3].srv.detach();
-    servos[4].srv.detach();
+    for(int i = 0; i<5; i++)
+      servos[i].srv.detach();
+      
     // Flash the LED to let user know replay is completed
     for (int i = 0; i < 3; i++)
     {
@@ -326,4 +225,3 @@ void loop()
     }
   }
 }
-
