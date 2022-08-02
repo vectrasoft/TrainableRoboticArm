@@ -56,38 +56,18 @@ void setup(){
   // Detach to save power and allow human manipulation
   for(int i=0; i<5; i++)
     servos[i].srv.detach();
-  /*
-  // Display minimums and maximums for analog feedback
+
+  /* Display minimums and maximums for analog feedback
   // Uncomment for debugging
-  Serial.print("servos[0].srv Min: ");
-  Serial.println(servos[0].minFeed);
-  Serial.print("servos[0].srv Max: ");
-  Serial.println(servos[0].maxFeed);
-  Serial.print("servos[1].srv Min: ");
-  Serial.println(servos[1].minFeed);
-  Serial.print("servos[1].srv Max: ");
-  Serial.println(servos[1].maxFeed);
-  Serial.print("servos[2].srv Min: ");
-  Serial.println(servos[2].minFeed);
-  Serial.print("servos[2].srv Max: ");
-  Serial.println(servos[2].maxFeed);
-  Serial.print("servos[3].srv Min: ");
-  Serial.println(servos[3].minFeed);
-  Serial.print("servos[3].srv Max: ");
-  Serial.println(servos[3].maxFeed);
-  Serial.print("servos[4].srv Min: ");
-  Serial.println(servos[4].minFeed);
-  Serial.print("servos[4].srv Max: ");
-  Serial.println(servos[4].maxFeed);
+  for(int i=0; i<5; i++){
+    Serial.print("servos[i].srv Min: ");
+    Serial.println(servos[i].minFeed);
+    Serial.print("servos[i].srv Max: ");
+    Serial.println(servos[i].maxFeed);
+  }
   Serial.println();
   */
-  for (int i = 0; i < 3; i++)
-  {
-    digitalWrite(13, HIGH);
-    delay(100);
-    digitalWrite(13, LOW);
-    delay(100);
-  }
+  blink();
 }
 
 void loop()
@@ -115,19 +95,13 @@ void loop()
         break;
       }
       delay(50);
-      /*
-      // Display recorded values
+
+      /* Display recorded values
       // Uncomment for debugging
-      Serial.print(servos[0].pos);
-      Serial.print("\t");
-      Serial.print(servos[1].pos);
-      Serial.print("\t");
-      Serial.print(servos[2].pos);
-      Serial.print("\t");
-      Serial.print(servos[3].pos);
-      Serial.print("\t");
-      Serial.print(servos[4].pos);
-      Serial.println();
+      for(int i=0; i<5; i++){
+        Serial.print(servos[i].pos);
+        Serial.print("\t");
+      }
       */
     }
     EEPROM.write(addr, 255);
@@ -157,29 +131,15 @@ void loop()
         servos[i].pos1 = EEPROM.read(addr+5);
         addr++;
       }
-      /*
-      // Display positions being written to the servos
+
+      /* Display positions being written to the servos
       // Uncomment for debugging
-      Serial.print("servos[0].srv: ");
-      Serial.print(servos[0].pos);
-      Serial.print("\t\t\t");
-      Serial.println(servos[0].pos1);
-      Serial.print("servos[1].srv: ");
-      Serial.print(servos[1].pos);
-      Serial.print("\t\t");
-      Serial.println(servos[1].pos1);
-      Serial.print("servos[2].srv: ");
-      Serial.print(servos[2].pos);
-      Serial.print("\t\t");
-      Serial.println(servos[2].pos1);
-      Serial.print("servos[3].srv: ");
-      Serial.print(servos[3].pos);
-      Serial.print("\t\t");
-      Serial.println(servos[3].pos1);
-      Serial.print("servos[4].srv: ");
-      Serial.print(servos[4].pos);
-      Serial.print("\t\t");
-      Serial.println(servos[4].pos1);
+      for(int i=0; i<5; i++){
+        Serial.print("servos[i].srv: ");
+        Serial.print(servos[i].pos);
+        Serial.print("\t\t");
+        Serial.println(servos[i].pos1);
+      }
       Serial.println();
       */
       
@@ -214,14 +174,17 @@ void loop()
     // Detach them to save power and allow human manipulation
     for(int i = 0; i<5; i++)
       servos[i].srv.detach();
-      
+
     // Flash the LED to let user know replay is completed
-    for (int i = 0; i < 3; i++)
-    {
-      digitalWrite(13, HIGH);
-      delay(100);
-      digitalWrite(13, LOW);
-      delay(100);
-    }
+    blink();
+  }
+}
+
+void blink(){
+  for (int i = 0; i < 3; i++){
+    digitalWrite(13, HIGH);
+    delay(100);
+    digitalWrite(13, LOW);
+    delay(100);
   }
 }
