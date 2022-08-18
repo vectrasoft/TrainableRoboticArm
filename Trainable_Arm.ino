@@ -81,7 +81,7 @@ void loop(){
       delay(50);
 
       for(int i = 0; i<5; i++){
-        int pos = map(analogRead(1), servos[i].minFeed, servos[i].maxFeed, servos[i].minDeg, servos[i].maxDeg);
+        int pos = map(analogRead(i+1), servos[i].minFeed, servos[i].maxFeed, servos[i].minDeg, servos[i].maxDeg);
         pos = constrain(pos, 0, 180);
         EEPROM.write(addr, pos);
         addr++;
